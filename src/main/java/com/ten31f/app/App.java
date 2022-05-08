@@ -1,73 +1,40 @@
 package com.ten31f.app;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import java.util.Date;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
+import com.ten31f.tools.Scrapper;
 
 public class App {
 
 	public static final String FORMAT = "youtube-dl \"%s\"";
 
+	private static Logger LOGGER = Logger.getLogger(App.class.getName());
+	static {
+		ConsoleHandler handler = new ConsoleHandler();
+		handler.setFormatter(new SimpleFormatter() {
+			private static final String format = "[%1$tF %1$tT] [%2$-7s] %3$s %n";
+
+			@Override
+			public String formatMessage(LogRecord record) {
+				return String.format(format, new Date(record.getMillis()), record.getLevel().getLocalizedName(),
+						record.getMessage());
+			}
+		});
+		LOGGER.setUseParentHandlers(false);
+		LOGGER.addHandler(handler);
+	}
+
 	public static void main(String[] args) {
 		System.setProperty("webdriver.chrome.driver", "C:\\chromedriver\\chromedriver.exe");
 
-		// Create firfox driver's instance
-		WebDriver driver = new ChromeDriver();
+		Scrapper scrapper = new Scrapper(args[0]);
 
-		driver.get(args[0]);
-		driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
-
-		waitForVisiable(driver);
-
-		Set<String> links = new HashSet<>();
-
-		List<WebElement> elements = driver.findElements(By.xpath("//a"));
-		for (WebElement element : elements) {
-			links.add(element.getAttribute("href"));
-
-		}
-
-		driver.close();
-
-		List<String> linkList = links.stream().filter(link -> link.contains("?") && link.contains("@"))
-				.collect(Collectors.toList());
-
-		Collections.sort(linkList);
-
-		StringBuilder stringBuilder = new StringBuilder();
-
-		stringBuilder.append("#!/bin/bash").append(System.lineSeparator());
-		stringBuilder.append("#").append(System.lineSeparator());
-		stringBuilder.append("# Start").append(System.lineSeparator());
-
-		linkList.forEach(link -> stringBuilder.append(String.format(FORMAT, link)).append(System.lineSeparator()));
-
-		stringBuilder.append("# end").append(System.lineSeparator());
-
-		System.out.println(stringBuilder.toString());
+		scrapper.scrap();
 
 	}
 
-	public static void waitForVisiable(WebDriver driver) {
-
-		while (driver.findElement(By.className("media__thumb")) == null) {
-			try {
-				Thread.sleep(200);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-	}
 }
