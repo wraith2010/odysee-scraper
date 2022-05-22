@@ -24,6 +24,7 @@ public class Scrapper {
 	private String URL;
 	private String tag;
 	private Set<String> links = null;
+	private boolean tagFilter = true;
 
 	private static Logger logger = Logger.getLogger(Scrapper.class.getName());
 
@@ -70,13 +71,13 @@ public class Scrapper {
 
 		scrollDown();
 
-		wait(1000);
+		wait(2000);
 
 		Set<String> linksNewSet = fetchLinks();
 
 		if (linksNewSet.size() > getLinks().size()) {
 
-			logger.log(Level.INFO, String.format("Found %s more links", linksNewSet.size() - getLinks().size()));
+			logger.log(Level.INFO, String.format("Found %s more links total(%s)", linksNewSet.size() - getLinks().size(), linksNewSet.size()));
 
 			setLinks(linksNewSet);
 			return true;
@@ -136,7 +137,11 @@ public class Scrapper {
 
 	private Set<String> filterSet(Set<String> links) {
 
-		return links.stream().filter(link -> link.contains(getTag())).collect(Collectors.toSet());
+		if (isTagFilter()) {
+			return links.stream().filter(link -> link.contains(getTag())).collect(Collectors.toSet());
+		}
+
+		return links;
 
 	}
 
@@ -201,6 +206,14 @@ public class Scrapper {
 
 	public void setLinks(Set<String> links) {
 		this.links = links;
+	}
+
+	public void setTagFilter(boolean tagFilter) {
+		this.tagFilter = tagFilter;
+	}
+
+	public boolean isTagFilter() {
+		return tagFilter;
 	}
 
 }

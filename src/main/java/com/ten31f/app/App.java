@@ -33,6 +33,8 @@ public class App {
 
 		Scrapper scrapper = new Scrapper(args[0]);
 
+		scrapper.setTagFilter(false);
+		
 		scrapper.scrap();
 
 	}
