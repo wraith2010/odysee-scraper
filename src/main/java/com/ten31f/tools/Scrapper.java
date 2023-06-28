@@ -25,6 +25,7 @@ public class Scrapper {
 	private String tag;
 	private Set<String> links = null;
 	private boolean tagFilter = true;
+	private boolean inverseTagFilter = false;
 
 	private static Logger logger = Logger.getLogger(Scrapper.class.getName());
 
@@ -71,13 +72,14 @@ public class Scrapper {
 
 		scrollDown();
 
-		wait(2000);
+		wait(3000);
 
 		Set<String> linksNewSet = fetchLinks();
 
 		if (linksNewSet.size() > getLinks().size()) {
 
-			logger.log(Level.INFO, String.format("Found %s more links total(%s)", linksNewSet.size() - getLinks().size(), linksNewSet.size()));
+			logger.log(Level.INFO, String.format("Found %s more links total(%s)",
+					linksNewSet.size() - getLinks().size(), linksNewSet.size()));
 
 			setLinks(linksNewSet);
 			return true;
@@ -124,9 +126,18 @@ public class Scrapper {
 
 		int startIndex = getURL().indexOf('@');
 
+		if (startIndex == -1)
+			return null;
+
 		String tag = getURL().substring(startIndex);
 
 		int endIndex = tag.indexOf('/');
+
+		if (endIndex > 0) {
+			tag = tag.substring(0, endIndex);
+		}
+
+		endIndex = tag.indexOf(':');
 
 		if (endIndex > 0) {
 			tag = tag.substring(0, endIndex);
@@ -138,7 +149,11 @@ public class Scrapper {
 	private Set<String> filterSet(Set<String> links) {
 
 		if (isTagFilter()) {
-			return links.stream().filter(link -> link.contains(getTag())).collect(Collectors.toSet());
+			return links.stream().filter(link -> link != null).filter(link -> link.contains(getTag()))
+					.collect(Collectors.toSet());
+		} else if (isInverseTagFilter()) {
+			return links.stream().filter(link -> link != null).filter(link -> !link.contains("@"))
+					.collect(Collectors.toSet());
 		}
 
 		return links;
@@ -214,6 +229,14 @@ public class Scrapper {
 
 	public boolean isTagFilter() {
 		return tagFilter;
+	}
+
+	public boolean isInverseTagFilter() {
+		return inverseTagFilter;
+	}
+
+	public void setInverseTagFilter(boolean inverseTagFilter) {
+		this.inverseTagFilter = inverseTagFilter;
 	}
 
 }
