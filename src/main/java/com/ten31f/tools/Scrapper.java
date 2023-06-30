@@ -16,9 +16,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
-public class Scrapper {
-
-	public static final String FORMAT = "youtube-dl \"%s\"";
+public abstract class Scrapper {
 
 	private WebDriver webDriver;
 	private String URL;
@@ -28,10 +26,6 @@ public class Scrapper {
 	private boolean inverseTagFilter = false;
 
 	private static Logger logger = Logger.getLogger(Scrapper.class.getName());
-
-	public Scrapper() {
-
-	}
 
 	public Scrapper(String URL) {
 		setURL(URL);
@@ -46,7 +40,7 @@ public class Scrapper {
 		initWebDriver();
 
 		getWebDriver().get(getURL());
-		getWebDriver().manage().timeouts().implicitlyWait(10, TimeUnit.MINUTES);
+		getWebDriver().manage().timeouts().setScriptTimeout(10, TimeUnit.MINUTES);
 		getWebDriver().manage().window().maximize();
 
 		wait(1000);
@@ -60,44 +54,18 @@ public class Scrapper {
 
 	}
 
-	private boolean checkattempt() {
+	public abstract boolean checkattempt();
 
-		if (getLinks() == null) {
-			setLinks(fetchLinks());
+	public abstract String getLinkPrintFormat();
 
-			logger.log(Level.INFO, "Initial fetch");
-
-			return true;
-		}
-
-		scrollDown();
-
-		wait(3000);
-
-		Set<String> linksNewSet = fetchLinks();
-
-		if (linksNewSet.size() > getLinks().size()) {
-
-			logger.log(Level.INFO, String.format("Found %s more links total(%s)",
-					linksNewSet.size() - getLinks().size(), linksNewSet.size()));
-
-			setLinks(linksNewSet);
-			return true;
-		}
-
-		logger.log(Level.INFO, "Complete");
-
-		return false;
-	}
-
-	private void scrollDown() {
+	protected void scrollDown() {
 
 		JavascriptExecutor javascriptExecutor = (JavascriptExecutor) getWebDriver();
 
 		javascriptExecutor.executeScript("window.scrollTo(0, document.body.scrollHeight)");
 	}
 
-	private Set<String> fetchLinks() {
+	protected Set<String> fetchLinks() {
 
 		List<WebElement> elements = getWebDriver().findElements(By.xpath("//a"));
 
@@ -183,7 +151,8 @@ public class Scrapper {
 		stringBuilder.append("#").append(System.lineSeparator());
 		stringBuilder.append("# Start").append(System.lineSeparator());
 
-		linkList.forEach(link -> stringBuilder.append(String.format(FORMAT, link)).append(System.lineSeparator()));
+		linkList.forEach(
+				link -> stringBuilder.append(String.format(getLinkPrintFormat(), link)).append(System.lineSeparator()));
 
 		stringBuilder.append("# end").append(System.lineSeparator());
 

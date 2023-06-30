@@ -6,13 +6,13 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import com.ten31f.tools.Scrapper;
+import com.ten31f.tools.VideoScrapper;
 
-public class App {
+public class AppVideo {
 
 	public static final String FORMAT = "youtube-dl \"%s\"";
 
-	private static Logger LOGGER = Logger.getLogger(App.class.getName());
+	private static Logger LOGGER = Logger.getLogger(AppVideo.class.getName());
 
 	static {
 		ConsoleHandler handler = new ConsoleHandler();
@@ -33,12 +33,12 @@ public class App {
 
 		System.setProperty("webdriver.chrome.driver", "C:\\chromedriver\\chromedriver.exe");
 
-		Scrapper scrapper = new Scrapper(args[0]);
+		VideoScrapper videoScrapper = new VideoScrapper(args[0]);
 
-		scrapper.setTagFilter(true);
-		scrapper.setInverseTagFilter(false);
+		videoScrapper.setTagFilter(true);
+		videoScrapper.setInverseTagFilter(false);
 
-		scrapper.scrap();
+		videoScrapper.scrap();
 
 	}
 

@@ -16,9 +16,9 @@ public class ScrapperTest {
 	@Test
 	public void getUserTagTest() {
 
-		assertEquals(TAG01, new Scrapper(TEST_URL01).getUserTag());
-		assertEquals(TAG02, new Scrapper(TEST_URL02).getUserTag());
-		assertEquals(TAG02, new Scrapper(TEST_URL03).getUserTag());
+		assertEquals(TAG01, new VideoScrapper(TEST_URL01).getUserTag());
+		assertEquals(TAG02, new VideoScrapper(TEST_URL02).getUserTag());
+		assertEquals(TAG02, new VideoScrapper(TEST_URL03).getUserTag());
 
 	}
 
